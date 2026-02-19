@@ -126,3 +126,47 @@ Verification log (English UI pass):
 - Replaced README image assets:
   - `docs/screenshots/menu.png` <- new English menu capture
   - `docs/screenshots/gameplay.png` <- new English gameplay capture
+
+- Visual style update in `src/render/renderer.js`:
+  - Reworked player ship sprite from arrow-like silhouette to a fuller spacecraft shape (fuselage, wings, canopy, engine block, dual thrusters, richer boost flame).
+  - Upgraded background stars to twinkling spark-stars and added parallax decorative planets.
+  - Improved hazard visuals:
+    - suns now render with layered star-core gradient and hotter corona accents;
+    - black holes now include an accretion-style ring and darker core.
+
+Verification log (ship + space objects visual pass):
+- Captured fresh screenshots via Playwright:
+  - `output/web-game-menu-ship-v2/shot-0.png`
+  - `output/web-game-ship-v2/shot-0.png`
+- Manually reviewed captures: ship no longer looks like a simple arrow; stars/space bodies are visually richer and more consistent with space theme.
+
+- Added black-hole variety system (type + size) with deterministic generation:
+  - `src/config/contentTables.js`: split black holes into three weighted variants:
+    - `fracture` (small)
+    - `maelstrom` (medium)
+    - `voidCrown` (giant)
+  - `src/systems/worldgen.js`: hazards now carry `variant` and `sizeClass` from templates.
+  - `src/render/renderer.js`: new variant-specific black-hole rendering styles (different rings/crown/spiral accents) and fallback by radius.
+  - `src/main.js`: exposed `variant` and `sizeClass` in `render_game_to_text` hazard payload.
+
+Verification log (black-hole variants):
+- Playwright gameplay run completed successfully (`output/web-game-blackholes-v3`).
+- Additional deterministic generation sweep via Node confirmed all variants appear:
+  - `blackHole:fracture:small`
+  - `blackHole:maelstrom:medium`
+  - `blackHole:voidCrown:giant`
+- Observed sampled black-hole radius range: `32.2 .. 94.9`.
+
+- Physics update: introduced size-dependent gravity wells for space-like motion.
+  - `src/systems/simulation.js`:
+    - added generic gravity well solver with distance falloff/softening/caps,
+    - gravity now affects player, bullets, and enemies,
+    - well strength scales with object radius and black-hole variant/size class,
+    - removed old hardcoded black-hole-only pull logic.
+  - `src/core/constants.js`: reduced drag (`0.86 -> 0.975`) and switched to frame-rate-safe damping in simulation for stronger inertia.
+  - `src/main.js`: existing `render_game_to_text` already exposes hazard radius/variant so gravity source sizing is observable.
+
+Verification log (gravity wells):
+- Playwright run: `output/web-game-gravity-wells-v1` (2 iterations).
+- State snapshots show persistent inertial velocity and non-zero drift (`vx/vy`) during run.
+- Visual review confirms stable gameplay after gravity integration.

@@ -19,6 +19,142 @@ function clamp01(v) {
   return Math.max(0, Math.min(1, v));
 }
 
+function drawBackdropPlanets(ctx, cameraX, cameraY, time) {
+  const bodies = [
+    { x: 190, y: 120, r: 62, c1: "#7dd7ff", c2: "#2f5f92", drift: 0.012 },
+    { x: 820, y: 98, r: 44, c1: "#ffc78b", c2: "#8f4f2b", drift: -0.016 },
+    { x: 710, y: 170, r: 26, c1: "#c2b8ff", c2: "#5546a3", drift: 0.02 },
+  ];
+
+  for (const body of bodies) {
+    const px = body.x - cameraX * body.drift;
+    const py = body.y - cameraY * body.drift * 0.5;
+    const pulse = 1 + Math.sin(time * 0.5 + body.r) * 0.03;
+    const rr = body.r * pulse;
+
+    const glow = ctx.createRadialGradient(px, py, rr * 0.3, px, py, rr * 2.1);
+    glow.addColorStop(0, "rgba(160, 220, 255, 0.2)");
+    glow.addColorStop(1, "rgba(0, 0, 0, 0)");
+    ctx.fillStyle = glow;
+    ctx.beginPath();
+    ctx.arc(px, py, rr * 2.1, 0, Math.PI * 2);
+    ctx.fill();
+
+    const planet = ctx.createRadialGradient(px - rr * 0.35, py - rr * 0.35, rr * 0.15, px, py, rr);
+    planet.addColorStop(0, body.c1);
+    planet.addColorStop(1, body.c2);
+    ctx.fillStyle = planet;
+    ctx.beginPath();
+    ctx.arc(px, py, rr, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.strokeStyle = "rgba(230, 245, 255, 0.22)";
+    ctx.lineWidth = 1.2;
+    ctx.beginPath();
+    ctx.arc(px, py, rr * 0.72, -0.6, 1.8);
+    ctx.stroke();
+  }
+}
+
+function drawStarSpark(ctx, x, y, size, alpha) {
+  ctx.fillStyle = `rgba(210,235,255,${alpha})`;
+  ctx.beginPath();
+  ctx.arc(x, y, size, 0, Math.PI * 2);
+  ctx.fill();
+
+  if (size < 2.1) return;
+  ctx.strokeStyle = `rgba(190,225,255,${alpha * 0.75})`;
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  ctx.moveTo(x - size * 2.2, y);
+  ctx.lineTo(x + size * 2.2, y);
+  ctx.moveTo(x, y - size * 2.2);
+  ctx.lineTo(x, y + size * 2.2);
+  ctx.stroke();
+}
+
+function drawBlackHole(ctx, hazard, p, hr, hi, time) {
+  const variant = hazard.variant || (hazard.radius >= 66 ? "voidCrown" : hazard.radius >= 48 ? "maelstrom" : "fracture");
+
+  const outerWarp = ctx.createRadialGradient(p.x, p.y, hr * 0.45, p.x, p.y, hi);
+  outerWarp.addColorStop(0, "rgba(30, 14, 54, 0.08)");
+  outerWarp.addColorStop(0.55, "rgba(132, 108, 255, 0.2)");
+  outerWarp.addColorStop(1, "rgba(18, 9, 34, 0)");
+  ctx.fillStyle = outerWarp;
+  ctx.beginPath();
+  ctx.arc(p.x, p.y, hi, 0, Math.PI * 2);
+  ctx.fill();
+
+  if (variant === "fracture") {
+    const ring = ctx.createRadialGradient(p.x, p.y, hr * 0.5, p.x, p.y, hr * 1.35);
+    ring.addColorStop(0, "rgba(20, 12, 32, 0)");
+    ring.addColorStop(0.6, "rgba(148, 124, 255, 0.22)");
+    ring.addColorStop(1, "rgba(24, 13, 44, 0)");
+    ctx.fillStyle = ring;
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, hr * 1.35, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.strokeStyle = "rgba(188, 170, 255, 0.35)";
+    ctx.lineWidth = Math.max(1, hr * 0.06);
+    for (let i = 0; i < 4; i += 1) {
+      const a = time * 0.9 + i * (Math.PI / 2);
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, hr * (0.95 + i * 0.1), a, a + Math.PI * 0.8);
+      ctx.stroke();
+    }
+  } else if (variant === "maelstrom") {
+    for (let i = 0; i < 5; i += 1) {
+      const a = time * (0.55 + i * 0.08);
+      const rx = hr * (1.05 + i * 0.19);
+      const ry = hr * (0.68 + i * 0.12);
+      ctx.strokeStyle = `rgba(170, 150, 255, ${0.28 - i * 0.04})`;
+      ctx.lineWidth = Math.max(1, hr * 0.045);
+      ctx.beginPath();
+      ctx.ellipse(p.x, p.y, rx, ry, a, 0, Math.PI * 2);
+      ctx.stroke();
+    }
+  } else {
+    const crown = ctx.createRadialGradient(p.x, p.y, hr * 0.7, p.x, p.y, hr * 1.85);
+    crown.addColorStop(0, "rgba(28, 18, 46, 0)");
+    crown.addColorStop(0.58, "rgba(120, 98, 245, 0.3)");
+    crown.addColorStop(0.82, "rgba(82, 58, 176, 0.16)");
+    crown.addColorStop(1, "rgba(25, 13, 46, 0)");
+    ctx.fillStyle = crown;
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, hr * 1.85, 0, Math.PI * 2);
+    ctx.fill();
+
+    for (let i = 0; i < 6; i += 1) {
+      const a = time * 0.35 + i * (Math.PI / 3);
+      const x1 = p.x + Math.cos(a) * hr * 1.6;
+      const y1 = p.y + Math.sin(a) * hr * 1.6;
+      const x2 = p.x + Math.cos(a) * hr * 2.2;
+      const y2 = p.y + Math.sin(a) * hr * 2.2;
+      ctx.strokeStyle = "rgba(170, 150, 255, 0.3)";
+      ctx.lineWidth = Math.max(1, hr * 0.05);
+      ctx.beginPath();
+      ctx.moveTo(x1, y1);
+      ctx.lineTo(x2, y2);
+      ctx.stroke();
+    }
+  }
+
+  const eventHorizon = ctx.createRadialGradient(p.x, p.y, hr * 0.18, p.x, p.y, hr);
+  eventHorizon.addColorStop(0, "#05040a");
+  eventHorizon.addColorStop(1, "#11091f");
+  ctx.fillStyle = eventHorizon;
+  ctx.beginPath();
+  ctx.arc(p.x, p.y, hr, 0, Math.PI * 2);
+  ctx.fill();
+
+  ctx.strokeStyle = "rgba(153, 134, 248, 0.62)";
+  ctx.lineWidth = Math.max(1.2, hr * 0.06);
+  ctx.beginPath();
+  ctx.arc(p.x, p.y, hr + 4 * p.scale, 0, Math.PI * 2);
+  ctx.stroke();
+}
+
 function drawBackground(ctx, state, cameraX, cameraY) {
   const grad = ctx.createLinearGradient(0, 0, 0, WORLD_HEIGHT);
   grad.addColorStop(0, "#030a14");
@@ -28,15 +164,16 @@ function drawBackground(ctx, state, cameraX, cameraY) {
   ctx.fillRect(0, 0, WORLD_WIDTH, WORLD_HEIGHT);
 
   drawPerspectiveLanes(ctx, cameraX, cameraY);
+  drawBackdropPlanets(ctx, cameraX, cameraY, state.time);
 
   for (const star of state.stars) {
     const sx = ((star.x - cameraX * star.z * 0.05) % 3000 + 3000) % 3000;
     const sy = ((star.y - cameraY * star.z * 0.05) % 3000 + 3000) % 3000;
     const x = (sx / 3000) * WORLD_WIDTH;
     const y = (sy / 3000) * WORLD_HEIGHT;
-    const s = 1 + 2 * star.z;
-    ctx.fillStyle = `rgba(185,217,255,${0.25 + 0.6 * star.z})`;
-    ctx.fillRect(x, y, s, s);
+    const s = 0.8 + 1.8 * star.z;
+    const twinkle = 0.28 + 0.58 * star.z + 0.14 * Math.sin(state.time * 2.4 + star.x * 0.01);
+    drawStarSpark(ctx, x, y, s, clamp01(twinkle));
   }
 }
 
@@ -168,29 +305,22 @@ function drawHazards(ctx, cameraX, cameraY, state) {
       ctx.arc(p.x, p.y, hi, 0, Math.PI * 2);
       ctx.fill();
 
-      ctx.fillStyle = "#ffd08f";
-      ctx.beginPath();
-      ctx.arc(p.x, p.y, hr, 0, Math.PI * 2);
-      ctx.fill();
-    } else {
-      const g = ctx.createRadialGradient(p.x, p.y, 5, p.x, p.y, hi);
-      g.addColorStop(0, "rgba(175,160,255,0.3)");
-      g.addColorStop(1, "rgba(40,20,75,0)");
-      ctx.fillStyle = g;
-      ctx.beginPath();
-      ctx.arc(p.x, p.y, hi, 0, Math.PI * 2);
-      ctx.fill();
-
-      ctx.fillStyle = "#1a0f2a";
+      const starCore = ctx.createRadialGradient(p.x - hr * 0.25, p.y - hr * 0.22, hr * 0.15, p.x, p.y, hr);
+      starCore.addColorStop(0, "#fff7cd");
+      starCore.addColorStop(0.45, "#ffd27e");
+      starCore.addColorStop(1, "#ff8f42");
+      ctx.fillStyle = starCore;
       ctx.beginPath();
       ctx.arc(p.x, p.y, hr, 0, Math.PI * 2);
       ctx.fill();
 
-      ctx.strokeStyle = "#8f84ff";
-      ctx.lineWidth = 1.6;
+      ctx.strokeStyle = "rgba(255, 234, 162, 0.4)";
+      ctx.lineWidth = Math.max(1, hr * 0.07);
       ctx.beginPath();
-      ctx.arc(p.x, p.y, hr + 5 * p.scale, 0, Math.PI * 2);
+      ctx.arc(p.x, p.y, hr * 0.78, -0.8, 1.9);
       ctx.stroke();
+    } else {
+      drawBlackHole(ctx, hazard, p, hr, hi, state.time);
     }
   }
 }
@@ -263,51 +393,84 @@ function drawPlayer(ctx, cameraX, cameraY, state) {
   ctx.ellipse(-2, 10, 16, 6, 0, 0, Math.PI * 2);
   ctx.fill();
 
-  // Main hull (low-poly style)
-  const hullGrad = ctx.createLinearGradient(-14, -12, 18, 12);
-  hullGrad.addColorStop(0, "#b7f3ff");
-  hullGrad.addColorStop(1, "#4ab8dc");
+  // Main fuselage
+  const hullGrad = ctx.createLinearGradient(-20, -14, 22, 14);
+  hullGrad.addColorStop(0, "#d6f6ff");
+  hullGrad.addColorStop(0.55, "#83d8f0");
+  hullGrad.addColorStop(1, "#2a88b8");
   ctx.fillStyle = hullGrad;
   ctx.beginPath();
-  ctx.moveTo(22, 0);
-  ctx.lineTo(-9, -12);
-  ctx.lineTo(-3, 0);
-  ctx.lineTo(-9, 12);
+  ctx.moveTo(24, 0);
+  ctx.quadraticCurveTo(8, -12, -13, -9);
+  ctx.lineTo(-17, -4.5);
+  ctx.lineTo(-17, 4.5);
+  ctx.lineTo(-13, 9);
+  ctx.quadraticCurveTo(8, 12, 24, 0);
   ctx.closePath();
   ctx.fill();
 
-  // Top plate for volume
-  ctx.fillStyle = "rgba(210, 250, 255, 0.8)";
+  // Upper deck
+  ctx.fillStyle = "rgba(224, 248, 255, 0.78)";
   ctx.beginPath();
-  ctx.moveTo(9, -2);
-  ctx.lineTo(-7, -8);
-  ctx.lineTo(-1, -1);
-  ctx.lineTo(10, -0.4);
+  ctx.moveTo(13, -2.2);
+  ctx.lineTo(-6, -7);
+  ctx.lineTo(-1.5, -1.1);
+  ctx.lineTo(14, -0.6);
   ctx.closePath();
   ctx.fill();
 
-  // Side wing
-  ctx.fillStyle = "rgba(95, 208, 235, 0.9)";
+  // Left wing
+  ctx.fillStyle = "rgba(96, 196, 230, 0.9)";
   ctx.beginPath();
-  ctx.moveTo(4, 3);
-  ctx.lineTo(-10, 11);
-  ctx.lineTo(-3, 2);
+  ctx.moveTo(3, -3);
+  ctx.lineTo(-13, -12);
+  ctx.lineTo(-6, -2.5);
   ctx.closePath();
   ctx.fill();
 
-  // Cockpit
-  ctx.fillStyle = "#f8feff";
+  // Right wing
   ctx.beginPath();
-  ctx.arc(0, 0, 3.6, 0, Math.PI * 2);
+  ctx.moveTo(3, 3);
+  ctx.lineTo(-13, 12);
+  ctx.lineTo(-6, 2.5);
+  ctx.closePath();
+  ctx.fill();
+
+  // Cockpit canopy
+  const canopy = ctx.createRadialGradient(4, -1.8, 0.4, 6, -1.6, 6);
+  canopy.addColorStop(0, "#ffffff");
+  canopy.addColorStop(1, "#7ccdf0");
+  ctx.fillStyle = canopy;
+  ctx.beginPath();
+  ctx.ellipse(6, -1.2, 5.3, 3.4, -0.08, 0, Math.PI * 2);
+  ctx.fill();
+
+  // Engine block
+  ctx.fillStyle = "#2d6688";
+  ctx.beginPath();
+  ctx.roundRect(-20, -5.2, 6.5, 10.4, 2.2);
+  ctx.fill();
+
+  // Thruster nozzles
+  ctx.fillStyle = "#15283a";
+  ctx.beginPath();
+  ctx.arc(-19.3, -2.2, 1.6, 0, Math.PI * 2);
+  ctx.arc(-19.3, 2.2, 1.6, 0, Math.PI * 2);
   ctx.fill();
 
   // Booster flame
   if (state.player.boosting) {
-    ctx.fillStyle = "rgba(255, 185, 110, 0.9)";
+    const flame = ctx.createLinearGradient(-28, 0, -13, 0);
+    flame.addColorStop(0, "rgba(255, 120, 70, 0.9)");
+    flame.addColorStop(0.5, "rgba(255, 192, 120, 0.8)");
+    flame.addColorStop(1, "rgba(164, 236, 255, 0.78)");
+    ctx.fillStyle = flame;
     ctx.beginPath();
-    ctx.moveTo(-12, 0);
-    ctx.lineTo(-21 - Math.random() * 6, -4);
-    ctx.lineTo(-21 - Math.random() * 6, 4);
+    ctx.moveTo(-13, -3.4);
+    ctx.lineTo(-25 - Math.random() * 7, -5.2);
+    ctx.lineTo(-21 - Math.random() * 6, 0);
+    ctx.lineTo(-25 - Math.random() * 7, 5.2);
+    ctx.lineTo(-13, 3.4);
     ctx.closePath();
     ctx.fill();
   }

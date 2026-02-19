@@ -6,7 +6,7 @@ export const CHUNK_SIZE = 1200;
 export const PLAYER = {
   radius: 15,
   thrust: 320,
-  drag: 0.86,
+  drag: 0.975,
   maxSpeed: 310,
   maxHull: 6,
   maxEnergy: 140,

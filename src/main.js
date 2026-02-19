@@ -94,6 +94,8 @@ function serializeForText(stateRef) {
       })),
       hazards: stateRef.hazards.slice(0, 12).map((h) => ({
         kind: h.kind,
+        variant: h.variant || null,
+        sizeClass: h.sizeClass || null,
         x: Number(h.x.toFixed(1)),
         y: Number(h.y.toFixed(1)),
         radius: Number(h.radius.toFixed(1)),

@@ -56,6 +56,8 @@ function generateChunk(state, cx, cy) {
     state.hazards.push({
       id: `${key}:h:${i}`,
       kind: tpl.kind,
+      variant: tpl.variant || null,
+      sizeClass: tpl.sizeClass || null,
       x: x0 + 80 + rng() * (CHUNK_SIZE - 160),
       y: y0 + 80 + rng() * (CHUNK_SIZE - 160),
       radius,

@@ -12,6 +12,80 @@ const PULSE_COST = 45;
 const PULSE_COOLDOWN = 9;
 const PULSE_RADIUS = 170;
 
+function clamp01(v) {
+  return Math.max(0, Math.min(1, v));
+}
+
+function applyWellAcceleration(acc, x, y, wx, wy, strength, dt, options = {}) {
+  const dx = wx - x;
+  const dy = wy - y;
+  const distSq = dx * dx + dy * dy;
+  if (distSq < 1e-6) return;
+
+  const dist = Math.sqrt(distSq);
+  const range = options.range ?? Infinity;
+  if (dist > range) return;
+
+  const softening = options.softening ?? 40;
+  const maxAccel = options.maxAccel ?? Infinity;
+  const falloff = Number.isFinite(range) ? 0.25 + 0.75 * clamp01(1 - dist / range) : 1;
+  const accel = Math.min(maxAccel, (strength / (distSq + softening * softening)) * falloff);
+  const invDist = 1 / dist;
+  acc.vx += dx * invDist * accel * dt;
+  acc.vy += dy * invDist * accel * dt;
+}
+
+function applyGravityToBody(state, body, dt, difficulty, options = {}) {
+  const x = body.x;
+  const y = body.y;
+
+  for (const hazard of state.hazards) {
+    const radius = hazard.radius || 0;
+    const influence = hazard.influence || 0;
+    const sizeScale = clamp(radius / 64, 0.45, 1.75);
+
+    if (hazard.kind === "blackHole") {
+      const variantScale =
+        hazard.sizeClass === "giant" ? 1.45 : hazard.sizeClass === "medium" ? 1.1 : hazard.sizeClass === "small" ? 0.85 : 1;
+      const strength = 148000 * sizeScale * sizeScale * variantScale * difficulty.hazardDamage;
+      applyWellAcceleration(body, x, y, hazard.x, hazard.y, strength, dt, {
+        range: influence * 1.45,
+        softening: radius * 0.85 + 26,
+        maxAccel: 290 * variantScale,
+      });
+    } else if (hazard.kind === "sun") {
+      const strength = 102000 * sizeScale * sizeScale * difficulty.hazardDamage;
+      applyWellAcceleration(body, x, y, hazard.x, hazard.y, strength, dt, {
+        range: influence * 1.15,
+        softening: radius + 34,
+        maxAccel: 220,
+      });
+    }
+  }
+
+  const outpostScale = clamp(OUTPOST.radius / 90, 0.8, 1.2);
+  applyWellAcceleration(body, x, y, state.outpost.x, state.outpost.y, 30000 * outpostScale * outpostScale, dt, {
+    range: 700,
+    softening: OUTPOST.radius * 0.9 + 24,
+    maxAccel: 95,
+  });
+
+  if (!options.includeResourceWells) return;
+  for (const node of state.resources) {
+    const dx = node.x - x;
+    const dy = node.y - y;
+    const distSq = dx * dx + dy * dy;
+    if (distSq > 260 * 260) continue;
+    const sizeScale = clamp(node.radius / 24, 0.55, 1.35);
+    const strength = 11800 * sizeScale * sizeScale;
+    applyWellAcceleration(body, x, y, node.x, node.y, strength, dt, {
+      range: 260,
+      softening: node.radius * 1.2 + 18,
+      maxAccel: 42,
+    });
+  }
+}
+
 function dirFromInput(state) {
   let dx = 0;
   let dy = 0;
@@ -39,8 +113,11 @@ function applyPlayerMotion(state, dt, difficulty) {
   state.player.vx += dir.dx * thrust * dt;
   state.player.vy += dir.dy * thrust * dt;
 
-  state.player.vx *= PLAYER.drag;
-  state.player.vy *= PLAYER.drag;
+  applyGravityToBody(state, state.player, dt, difficulty, { includeResourceWells: true });
+
+  const frameDrag = Math.pow(PLAYER.drag, dt / FIXED_DT);
+  state.player.vx *= frameDrag;
+  state.player.vy *= frameDrag;
 
   const speed = length(state.player.vx, state.player.vy);
   const maxSpeed = PLAYER.maxSpeed * (state.player.boosting ? 1.75 : 1);
@@ -100,8 +177,9 @@ function updateAim(state) {
   state.player.facing = Math.atan2(dy, dx);
 }
 
-function updateBullets(state, dt) {
+function updateBullets(state, dt, difficulty) {
   for (const bullet of state.bullets) {
+    applyGravityToBody(state, bullet, dt, difficulty, { includeResourceWells: false });
     bullet.x += bullet.vx * dt;
     bullet.y += bullet.vy * dt;
     bullet.life -= dt;
@@ -121,12 +199,6 @@ function applyHazards(state, dt, difficulty) {
     const dx = hazard.x - state.player.x;
     const dy = hazard.y - state.player.y;
     const dist = Math.max(1, Math.hypot(dx, dy));
-
-    if (hazard.kind === "blackHole" && dist < hazard.influence) {
-      const force = ((hazard.influence - dist) / hazard.influence) * 210 * difficulty.hazardDamage;
-      state.player.vx += (dx / dist) * force * dt;
-      state.player.vy += (dy / dist) * force * dt;
-    }
 
     if (dist < hazard.radius + PLAYER.radius) {
       const damage = hazard.kind === "sun" ? 0.8 : 1.4;
@@ -175,6 +247,8 @@ function updateEnemies(state, dt, difficulty) {
       enemy.vx += (dx / dist) * accel * dt;
       enemy.vy += (dy / dist) * accel * dt;
     }
+
+    applyGravityToBody(state, enemy, dt, difficulty, { includeResourceWells: false });
 
     enemy.vx *= 0.93;
     enemy.vy *= 0.93;
@@ -383,7 +457,7 @@ export function updatePlaying(state, dt) {
   triggerPulse(state);
   applyPlayerMotion(state, dt, difficulty);
   applyHazards(state, dt, difficulty);
-  updateBullets(state, dt);
+  updateBullets(state, dt, difficulty);
   updateEnemies(state, dt, difficulty);
   salvageNearby(state, difficulty);
   interactOutpost(state);

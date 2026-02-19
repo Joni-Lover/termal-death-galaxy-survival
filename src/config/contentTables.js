@@ -28,7 +28,7 @@ export const RESOURCE_NODE_TABLE = [
 export const HAZARD_TABLE = [
   {
     kind: "sun",
-    weight: 0.6,
+    weight: 0.52,
     radiusMin: 70,
     radiusMax: 120,
     influenceMin: 140,
@@ -36,11 +36,33 @@ export const HAZARD_TABLE = [
   },
   {
     kind: "blackHole",
-    weight: 0.4,
-    radiusMin: 42,
-    radiusMax: 66,
-    influenceMin: 190,
-    influenceMax: 280,
+    variant: "fracture",
+    sizeClass: "small",
+    weight: 0.2,
+    radiusMin: 32,
+    radiusMax: 48,
+    influenceMin: 150,
+    influenceMax: 220,
+  },
+  {
+    kind: "blackHole",
+    variant: "maelstrom",
+    sizeClass: "medium",
+    weight: 0.17,
+    radiusMin: 46,
+    radiusMax: 68,
+    influenceMin: 200,
+    influenceMax: 300,
+  },
+  {
+    kind: "blackHole",
+    variant: "voidCrown",
+    sizeClass: "giant",
+    weight: 0.11,
+    radiusMin: 66,
+    radiusMax: 96,
+    influenceMin: 260,
+    influenceMax: 390,
   },
 ];
 
