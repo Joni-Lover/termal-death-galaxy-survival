@@ -2,7 +2,7 @@ export const DIFFICULTY_ORDER = ["pilgrim", "drifter", "relic", "heatDeath"];
 
 export const DIFFICULTY_PROFILES = {
   pilgrim: {
-    label: "Пилигрим",
+    label: "Pilgrim",
     energyDrain: 0.55,
     hazardDamage: 0.55,
     enemyAggression: 0.58,
@@ -12,7 +12,7 @@ export const DIFFICULTY_PROFILES = {
     deathPenalty: 0.2,
   },
   drifter: {
-    label: "Скиталец",
+    label: "Drifter",
     energyDrain: 0.82,
     hazardDamage: 0.82,
     enemyAggression: 0.82,
@@ -22,7 +22,7 @@ export const DIFFICULTY_PROFILES = {
     deathPenalty: 0.38,
   },
   relic: {
-    label: "Реликт",
+    label: "Relic",
     energyDrain: 1.25,
     hazardDamage: 1.3,
     enemyAggression: 1.35,
@@ -32,7 +32,7 @@ export const DIFFICULTY_PROFILES = {
     deathPenalty: 0.65,
   },
   heatDeath: {
-    label: "Тепловая смерть",
+    label: "Heat Death",
     energyDrain: 1.45,
     hazardDamage: 1.7,
     enemyAggression: 1.6,

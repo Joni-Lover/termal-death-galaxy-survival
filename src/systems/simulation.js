@@ -235,11 +235,11 @@ function triggerPulse(state) {
   if (!consumePress(state, "KeyV")) return;
 
   if (state.player.pulseCooldown > 0) {
-    state.message = `Импульс перезаряжается: ${state.player.pulseCooldown.toFixed(1)}с`;
+    state.message = `Pulse cd: ${state.player.pulseCooldown.toFixed(1)}s`;
     return;
   }
   if (state.player.energy < PULSE_COST) {
-    state.message = "Недостаточно энергии для импульса.";
+    state.message = "No pulse energy.";
     return;
   }
 
@@ -258,9 +258,9 @@ function triggerPulse(state) {
   state.player.pulseFx = 0.28;
   if (destroyed > 0) {
     state.score += destroyed * 35;
-    state.message = `Импульс: уничтожено целей ${destroyed}.`;
+    state.message = `Pulse hit: ${destroyed}.`;
   } else {
-    state.message = "Импульс активирован.";
+    state.message = "Pulse fired.";
   }
 }
 
@@ -316,7 +316,7 @@ function interactOutpost(state) {
     if (fuelUse > 0) {
       state.outpost.stockpile.fuel -= fuelUse;
       state.outpost.energy = clamp(state.outpost.energy + fuelUse * 8 * effects.outpostChargeMultiplier, 0, OUTPOST.maxEnergy);
-      state.message = "Оплот подпитан топливом.";
+      state.message = "Outpost fueled.";
     }
   }
 
@@ -326,11 +326,11 @@ function interactOutpost(state) {
     const level = state.upgrades[id];
     const cost = getUpgradeCost(id, level);
     if (!cost) {
-      state.message = `${def.label}: максимальный уровень.`;
+      state.message = `${def.label}: max level.`;
       continue;
     }
     if (!canAfford(state.outpost.stockpile, cost)) {
-      state.message = `Недостаточно ресурсов для "${def.label}".`;
+      state.message = `Need mats for "${def.label}".`;
       continue;
     }
 
@@ -342,7 +342,7 @@ function interactOutpost(state) {
     state.player.cargoCapacity = nextEffects.cargoCapacity;
     state.player.hull = clamp(state.player.hull + 0.8, 0, state.player.maxHull);
     state.player.energy = clamp(state.player.energy + 14, 0, state.player.maxEnergy);
-    state.message = `${def.label}: уровень ${state.upgrades[id]}.`;
+    state.message = `${def.label}: lvl ${state.upgrades[id]}.`;
   }
 }
 
@@ -355,10 +355,10 @@ function decayOutpost(state, dt, difficulty) {
 function handleFailure(state, difficulty) {
   if (state.player.hull <= 0) {
     state.mode = "gameover";
-    state.gameOverReason = "Корпус разрушен в глубоком энтропийном поле.";
+    state.gameOverReason = "Hull lost in entropy field.";
   } else if (state.outpost.energy <= 0) {
     state.mode = "gameover";
-    state.gameOverReason = "Оплот Эмбер погас.";
+    state.gameOverReason = "Outpost Ember went dark.";
   }
 
   if (state.mode === "gameover") {

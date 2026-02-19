@@ -111,3 +111,18 @@ QA visual pass (Playwright screenshots):
   - horizon/depth lane lines in background,
   - depth-scaled hazards/resources/enemies/bullets/outpost/player,
   - object contact shadows for better depth perception.
+
+- Localized all in-game UI text to English and shortened phrasing:
+  - `src/render/renderer.js`: menu, HUD, hints, objective checklist, and game-over overlays.
+  - `src/systems/input.js` and `src/systems/simulation.js`: runtime status messages.
+  - `src/config/upgrades.js` and `src/config/difficultyProfiles.js`: upgrade and difficulty labels.
+  - `src/core/state.js`: default run-start status line.
+
+Verification log (English UI pass):
+- Ran Playwright capture with elevated permissions (Chromium launch blocked in sandbox):
+  - menu: `test_actions_menu.json` -> `output/web-game-menu-en/shot-0.png`
+  - gameplay: `test_actions_gameplay_hints_on.json` -> `output/web-game-gameplay-en/shot-0.png`
+- Reviewed both screenshots and confirmed visible UI strings are English and concise.
+- Replaced README image assets:
+  - `docs/screenshots/menu.png` <- new English menu capture
+  - `docs/screenshots/gameplay.png` <- new English gameplay capture

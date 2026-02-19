@@ -33,19 +33,19 @@ export function bindInput(state, canvas, toggleFullscreen) {
 
     if (state.mode === "playing" && event.code === "KeyH") {
       state.showHints = !state.showHints;
-      state.message = state.showHints ? "Подсказки включены." : "Подсказки скрыты.";
+      state.message = state.showHints ? "Hints on." : "Hints off.";
       return;
     }
 
     if (state.mode === "playing" && event.code === "KeyJ") {
       state.uiCompact = !state.uiCompact;
-      state.message = state.uiCompact ? "Компактный HUD включен." : "Полный HUD включен.";
+      state.message = state.uiCompact ? "Compact HUD." : "Full HUD.";
       return;
     }
 
     if (state.mode === "playing" && (event.code === "KeyM" || event.code === "Escape")) {
       state.mode = "menu";
-      state.message = "Пауза. Выбери сложность и нажми Enter для нового запуска.";
+      state.message = "Paused. Pick level, press Enter.";
       state.keys.clear();
       state.justPressed.clear();
       return;

@@ -107,7 +107,7 @@ function drawOutpost(ctx, cameraX, cameraY, state) {
 
   ctx.fillStyle = "#dffef3";
   ctx.font = "13px Trebuchet MS";
-  ctx.fillText("Оплот Эмбер", p.x - 45, p.y - rr - 10);
+  ctx.fillText("Outpost Ember", p.x - 45, p.y - rr - 10);
 
   const energyPct = state.outpost.energy / OUTPOST.maxEnergy;
   ctx.fillStyle = "rgba(4,20,14,0.8)";
@@ -353,42 +353,42 @@ function drawHud(ctx, state) {
 
   ctx.fillStyle = "#eaf5ff";
   ctx.font = "18px Trebuchet MS";
-  ctx.fillText(`Счёт: ${Math.floor(state.score)}`, 26, 42);
-  ctx.fillText(`Время: ${state.elapsed.toFixed(1)}с`, 26, 68);
-  ctx.fillText(`Сложность: ${DIFFICULTY_PROFILES[state.selectedDifficulty].label}`, 26, 94);
+  ctx.fillText(`Score: ${Math.floor(state.score)}`, 26, 42);
+  ctx.fillText(`Time: ${state.elapsed.toFixed(1)}s`, 26, 68);
+  ctx.fillText(`Mode: ${DIFFICULTY_PROFILES[state.selectedDifficulty].label}`, 26, 94);
 
   const hullPct = state.player.hull / state.player.maxHull;
   const energyPct = state.player.energy / state.player.maxEnergy;
   const cargoPct = state.player.cargoUsed / state.player.cargoCapacity;
 
-  drawBar(ctx, 26, 106, 190, 10, hullPct, "Корпус", "#ff9e8f");
-  drawBar(ctx, 26, 126, 190, 10, energyPct, "Энергия корабля", "#8de6ff");
-  drawBar(ctx, 26, 146, 190, 10, cargoPct, "Трюм", "#ffd494");
+  drawBar(ctx, 26, 106, 190, 10, hullPct, "Hull", "#ff9e8f");
+  drawBar(ctx, 26, 126, 190, 10, energyPct, "Energy", "#8de6ff");
+  drawBar(ctx, 26, 146, 190, 10, cargoPct, "Cargo", "#ffd494");
 
   ctx.font = "13px Trebuchet MS";
   ctx.fillStyle = "#cbddf7";
   ctx.fillText(
-    `Запасы: M ${state.outpost.stockpile.metal} | F ${state.outpost.stockpile.fuel} | C ${state.outpost.stockpile.crystal} | D ${state.outpost.stockpile.data}`,
+    `Stock: M ${state.outpost.stockpile.metal} | F ${state.outpost.stockpile.fuel} | C ${state.outpost.stockpile.crystal} | D ${state.outpost.stockpile.data}`,
     26,
     172,
   );
-  ctx.fillText(`Апгрейды: Реактор ${state.upgrades.reactor}/3 | Корпус ${state.upgrades.hull}/3 | Трюм ${state.upgrades.cargo}/4`, 26, 192);
+  ctx.fillText(`Upg: Reactor ${state.upgrades.reactor}/3 | Hull ${state.upgrades.hull}/3 | Cargo ${state.upgrades.cargo}/4`, 26, 192);
   ctx.fillText(
-    `Импульс V: ${state.player.pulseCooldown > 0 ? state.player.pulseCooldown.toFixed(1) + "с" : "готов"} | Ускорение Shift`,
+    `Pulse V: ${state.player.pulseCooldown > 0 ? state.player.pulseCooldown.toFixed(1) + "s" : "ready"} | Shift boost`,
     26,
     212,
   );
 
   if (state.showHints) {
-    ctx.fillText("Space/ЛКМ выстрел, V/ПКМ импульс, Shift ускорение", 450, 30);
-    ctx.fillText("E добыча, Q топливо -> энергия оплота", 450, 50);
+    ctx.fillText("Space/LMB fire | V/RMB pulse | Shift boost", 450, 30);
+    ctx.fillText("E salvage | Q fuel -> outpost", 450, 50);
     if (state.player.nearOutpost) {
       ctx.fillStyle = "#ffdfb0";
-      ctx.fillText("У оплота: Z Реактор, X Корпус, C Трюм", 450, 70);
+      ctx.fillText("At outpost: Z Reactor | X Hull | C Cargo", 450, 70);
     }
     if (state.player.inSafeZone) {
       ctx.fillStyle = "#9ff3bb";
-      ctx.fillText("Безопасная зона: аномалии и контактный урон не действуют", 450, 90);
+      ctx.fillText("Safe zone: no hazard/contact dmg", 450, 90);
     }
     drawUpgradeHints(ctx, state);
     drawObjectiveChecklist(ctx, state);
@@ -396,11 +396,11 @@ function drawHud(ctx, state) {
 
   if (state.message) {
     ctx.fillStyle = "#f6d89a";
-    ctx.fillText(`Статус: ${state.message}`, 450, state.showHints ? 112 : 30);
+    ctx.fillText(`Status: ${state.message}`, 450, state.showHints ? 112 : 30);
   }
   ctx.fillStyle = "#b7d8f7";
-  ctx.fillText(`H: ${state.showHints ? "скрыть" : "показать"} подсказки`, 450, 226);
-  ctx.fillText("J: компактный HUD", 450, 246);
+  ctx.fillText(`H: ${state.showHints ? "hide" : "show"} hints`, 450, 226);
+  ctx.fillText("J: compact HUD", 450, 246);
 }
 
 function drawCompactHud(ctx, state) {
@@ -414,27 +414,27 @@ function drawCompactHud(ctx, state) {
 
   ctx.fillStyle = "#eaf5ff";
   ctx.font = "18px Trebuchet MS";
-  ctx.fillText(`Счёт ${Math.floor(state.score)}  Время ${state.elapsed.toFixed(1)}с`, 24, 38);
+  ctx.fillText(`Score ${Math.floor(state.score)}  Time ${state.elapsed.toFixed(1)}s`, 24, 38);
   ctx.font = "15px Trebuchet MS";
-  ctx.fillText(`Корпус ${state.player.hull.toFixed(1)}/${state.player.maxHull}`, 24, 62);
+  ctx.fillText(`Hull ${state.player.hull.toFixed(1)}/${state.player.maxHull}`, 24, 62);
   drawBar(ctx, 24, 68, 180, 8, hullPct, "", "#ff9e8f");
-  ctx.fillText(`Энергия ${state.player.energy.toFixed(0)}/${state.player.maxEnergy}`, 24, 92);
+  ctx.fillText(`Energy ${state.player.energy.toFixed(0)}/${state.player.maxEnergy}`, 24, 92);
   drawBar(ctx, 24, 98, 180, 8, energyPct, "", "#8de6ff");
 
   ctx.font = "13px Trebuchet MS";
   ctx.fillStyle = "#b7d8f7";
   ctx.fillText(
-    `V ${state.player.pulseCooldown > 0 ? state.player.pulseCooldown.toFixed(1) + "с" : "готов"} | Shift ускорение | H подсказки | J полный HUD`,
+    `V ${state.player.pulseCooldown > 0 ? state.player.pulseCooldown.toFixed(1) + "s" : "ready"} | Shift boost | H hints | J full HUD`,
     360,
     30,
   );
   if (state.player.inSafeZone) {
     ctx.fillStyle = "#9ff3bb";
-    ctx.fillText("Безопасная зона активна", 360, 50);
+    ctx.fillText("Safe zone active", 360, 50);
   }
   if (state.message) {
     ctx.fillStyle = "#f6d89a";
-    ctx.fillText(`Статус: ${state.message}`, 360, 70);
+    ctx.fillText(`Status: ${state.message}`, 360, 70);
   }
 }
 
@@ -454,10 +454,10 @@ function drawUpgradeHints(ctx, state) {
     const level = state.upgrades[id];
     const cost = getUpgradeCost(id, level);
     if (!cost) {
-      lines.push(`${def.short}: ${def.label} МАКС`);
+      lines.push(`${def.short}: ${def.label} MAX`);
       continue;
     }
-    lines.push(`${def.short}: ${def.label} Ур.${level + 1} (${formatCost(cost)})`);
+    lines.push(`${def.short}: ${def.label} Lvl.${level + 1} (${formatCost(cost)})`);
   }
 
   ctx.fillStyle = "rgba(6,16,30,0.68)";
@@ -485,14 +485,14 @@ function drawMenu(ctx, state) {
   ctx.textAlign = "center";
   ctx.fillStyle = "#f2fbff";
   ctx.font = "bold 44px Trebuchet MS";
-  ctx.fillText("Тепловая Смерть: Выживание в Галактике", WORLD_WIDTH / 2, 130);
+  ctx.fillText("Thermal Death: Galaxy Survival", WORLD_WIDTH / 2, 130);
 
   ctx.fillStyle = "#b8d8f7";
   ctx.font = "22px Trebuchet MS";
-  ctx.fillText("Выживание в открытом космосе на фоне тепловой смерти Вселенной", WORLD_WIDTH / 2, 172);
+  ctx.fillText("Open-space survival near the end of the universe", WORLD_WIDTH / 2, 172);
 
   ctx.font = "20px Trebuchet MS";
-  ctx.fillText("Лети во все стороны, добывай реликты, избегай звёзд и чёрных дыр", WORLD_WIDTH / 2, 210);
+  ctx.fillText("Fly free. Salvage relics. Avoid suns and black holes.", WORLD_WIDTH / 2, 210);
 
   const startY = 270;
   for (let i = 0; i < DIFFICULTY_ORDER.length; i += 1) {
@@ -505,10 +505,10 @@ function drawMenu(ctx, state) {
 
   ctx.fillStyle = "#ffe5b3";
   ctx.font = "bold 26px Trebuchet MS";
-  ctx.fillText("Нажми Enter для старта", WORLD_WIDTH / 2, 455);
+  ctx.fillText("Press Enter to launch", WORLD_WIDTH / 2, 455);
   ctx.font = "17px Trebuchet MS";
-  ctx.fillText("WASD/Стрелки движение, мышь прицел, Space/ЛКМ выстрел, Shift ускорение", WORLD_WIDTH / 2, 492);
-  ctx.fillText("V/ПКМ импульс, E добыча, Q подпитка оплота, H подсказки, J HUD, M/Esc меню", WORLD_WIDTH / 2, 516);
+  ctx.fillText("WASD/Arrows move, mouse aim, Space/LMB fire, Shift boost", WORLD_WIDTH / 2, 492);
+  ctx.fillText("V/RMB pulse, E salvage, Q fuel outpost, H hints, J HUD, M/Esc menu", WORLD_WIDTH / 2, 516);
 
   drawStartGuide(ctx);
   ctx.textAlign = "left";
@@ -521,16 +521,16 @@ function drawGameOver(ctx, state) {
   ctx.textAlign = "center";
   ctx.fillStyle = "#ffe2d0";
   ctx.font = "bold 54px Trebuchet MS";
-  ctx.fillText("Сигнал потерян", WORLD_WIDTH / 2, 200);
+  ctx.fillText("Signal Lost", WORLD_WIDTH / 2, 200);
 
   ctx.font = "25px Trebuchet MS";
   ctx.fillStyle = "#fff1e8";
   ctx.fillText(state.gameOverReason, WORLD_WIDTH / 2, 252);
-  ctx.fillText(`Итоговый счёт: ${Math.floor(state.score)}`, WORLD_WIDTH / 2, 292);
-  ctx.fillText(`Время выживания: ${state.elapsed.toFixed(1)}с`, WORLD_WIDTH / 2, 326);
+  ctx.fillText(`Final score: ${Math.floor(state.score)}`, WORLD_WIDTH / 2, 292);
+  ctx.fillText(`Survival: ${state.elapsed.toFixed(1)}s`, WORLD_WIDTH / 2, 326);
 
   ctx.fillStyle = "#ffd7a1";
-  ctx.fillText("Нажми R для перезапуска", WORLD_WIDTH / 2, 390);
+  ctx.fillText("Press R to retry", WORLD_WIDTH / 2, 390);
   ctx.textAlign = "left";
 }
 
@@ -568,15 +568,15 @@ function drawStartGuide(ctx) {
   ctx.textAlign = "left";
   ctx.fillStyle = "#dff0ff";
   ctx.font = "bold 19px Trebuchet MS";
-  ctx.fillText("Что делать:", x + 16, y + 30);
+  ctx.fillText("Quick start:", x + 16, y + 30);
 
   ctx.font = "17px Trebuchet MS";
   ctx.fillStyle = "#d2e6fb";
-  ctx.fillText("1. Вылетай из Оплота Эмбер и ищи астероиды, осколки и руины.", x + 16, y + 62);
-  ctx.fillText("2. Подлети к узлу и нажми E, чтобы собрать ресурсы в трюм.", x + 16, y + 90);
-  ctx.fillText("3. Вернись к оплоту: груз автоматически уйдёт в общий склад.", x + 16, y + 118);
-  ctx.fillText("4. Нажимай Q, чтобы конвертировать топливо в энергию оплота.", x + 16, y + 146);
-  ctx.fillText("5. Улучшай корабль у оплота: Z реактор, X корпус, C трюм.", x + 16, y + 174);
+  ctx.fillText("1. Leave Outpost Ember. Find asteroids, shards, wrecks.", x + 16, y + 62);
+  ctx.fillText("2. Move close and press E to salvage cargo.", x + 16, y + 90);
+  ctx.fillText("3. Return to outpost to auto-deposit cargo.", x + 16, y + 118);
+  ctx.fillText("4. Press Q to turn fuel into outpost energy.", x + 16, y + 146);
+  ctx.fillText("5. Buy upgrades at outpost: Z reactor, X hull, C cargo.", x + 16, y + 174);
 }
 
 function drawObjectiveChecklist(ctx, state) {
@@ -589,10 +589,10 @@ function drawObjectiveChecklist(ctx, state) {
   const lowOutpostEnergy = state.outpost.energy < 110;
 
   const items = [
-    `${hasCargo ? "ГОТОВО" : "ЗАДАЧА"}: Добыть ресурсный узел (E)`,
-    `${hasCargo && atOutpost ? "ГОТОВО" : "ЗАДАЧА"}: Вернуть груз в оплот`,
-    `${lowOutpostEnergy ? "ЗАДАЧА" : "ГОТОВО"}: Держать энергию оплота (Q)`,
-    "СОВЕТ: Обходи звёзды и чёрные дыры",
+    `${hasCargo ? "DONE" : "TODO"}: Salvage a node (E)`,
+    `${hasCargo && atOutpost ? "DONE" : "TODO"}: Return cargo`,
+    `${lowOutpostEnergy ? "TODO" : "DONE"}: Keep outpost energy (Q)`,
+    "TIP: Avoid suns and black holes",
   ];
 
   ctx.fillStyle = "rgba(6,16,30,0.68)";
@@ -601,9 +601,9 @@ function drawObjectiveChecklist(ctx, state) {
   ctx.strokeRect(x, y, w, h);
   ctx.fillStyle = "#d7e9ff";
   ctx.font = "13px Trebuchet MS";
-  ctx.fillText("Чеклист миссии", x + 12, y + 18);
+  ctx.fillText("Mission checklist", x + 12, y + 18);
   for (let i = 0; i < items.length; i += 1) {
-    ctx.fillStyle = items[i].startsWith("ГОТОВО") ? "#9ff3bb" : "#d7e9ff";
+    ctx.fillStyle = items[i].startsWith("DONE") ? "#9ff3bb" : "#d7e9ff";
     ctx.fillText(items[i], x + 12, y + 40 + i * 20);
   }
 }

@@ -3,7 +3,7 @@ import { PLAYER } from "../core/constants.js";
 export const UPGRADE_DEFS = {
   reactor: {
     key: "KeyZ",
-    label: "Стабилизатор реактора",
+    label: "Reactor",
     short: "Z",
     maxLevel: 3,
     costs: [
@@ -14,7 +14,7 @@ export const UPGRADE_DEFS = {
   },
   hull: {
     key: "KeyX",
-    label: "Усиление корпуса",
+    label: "Hull Plating",
     short: "X",
     maxLevel: 3,
     costs: [
@@ -25,7 +25,7 @@ export const UPGRADE_DEFS = {
   },
   cargo: {
     key: "KeyC",
-    label: "Грузовая решётка",
+    label: "Cargo Rack",
     short: "C",
     maxLevel: 4,
     costs: [

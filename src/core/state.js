@@ -110,7 +110,7 @@ export function resetRun(state) {
   state.player.cargo = { metal: 0, fuel: 0, crystal: 0, data: 0, entropyCore: 0 };
   state.outpost.energy = 250;
   state.outpost.stockpile = { metal: 28, fuel: 30, crystal: 12, data: 7, entropyCore: 0 };
-  state.message = "Собирай ресурсы, возвращайся в Оплот Эмбер и держи его энергию.";
+  state.message = "Salvage. Return cargo. Keep Ember alive.";
   state.mouse.active = false;
   state.gameOverReason = "";
 }
