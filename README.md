@@ -34,3 +34,7 @@ Then open `http://127.0.0.1:4173`.
 
 ## Automation
 `window.render_game_to_text()` and `window.advanceTime(ms)` are exposed for deterministic Playwright testing.
+
+## Screenshots
+![Main menu](docs/screenshots/menu.png)
+![Gameplay](docs/screenshots/gameplay.png)
